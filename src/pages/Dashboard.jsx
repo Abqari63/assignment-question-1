@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState} from "react";
 
 // Data
 import mockData from "../assets/data.json";
@@ -15,15 +15,28 @@ import styles from "./Dashboard.module.css";
 import Card from "../component/card/Card";
 
 const Dashboard = () => {
-  const [currency, setCurrency] = useState("EUR");
+  const [currency, setCurrency] = useState("USD");
   const [searchText, setSearchText] = useState("");
   const [selectedOrderDetails, setSelectedOrderDetails] = useState({});
   const [selectedOrderTimeStamps, setSelectedOrderTimeStamps] = useState({});
 
+  const handleOrderDetails = selectedId => {
+    const selectedDetails = mockData.results.find((order) => {
+      return order["&id"] === selectedId
+    })
+
+    const selectedTimeStamp = timestamps.results.find((timestamp) => {
+      return timestamp["&id"] === selectedId;
+    });
+
+    setSelectedOrderDetails(selectedDetails);
+    setSelectedOrderTimeStamps(selectedTimeStamp);
+  }
+
   return (
     <div>
       <div className={styles.header}>
-        <HeaderTitle primaryTitle="Orders" secondaryTitle="5 orders" />
+        <HeaderTitle primaryTitle="Orders" secondaryTitle={`${mockData.results.length} orders`} />
         <div className={styles.actionBox}>
           <Search
             value={searchText}
@@ -39,15 +52,17 @@ const Dashboard = () => {
       <div className={styles.content}>
         <div className={styles.section}>
           <Card
-            cardData={selectedOrderDetails}
+            cardData={selectedOrderDetails.executionDetails}
+            key={selectedOrderDetails["&key"]}
             title="Selected Order Details"
           />
           <Card
-            cardData={selectedOrderTimeStamps}
+            cardData={selectedOrderTimeStamps.timestamps}
+            key={selectedOrderDetails["&key"]}
             title="Selected Order Timestamps"
           />
         </div>
-        <List rows={mockData.results} />
+        <List handleOrderDetails={handleOrderDetails} searchText={searchText} rows={mockData.results}  orderDetails={timestamps.results} currency={currency} />
       </div>
     </div>
   );
